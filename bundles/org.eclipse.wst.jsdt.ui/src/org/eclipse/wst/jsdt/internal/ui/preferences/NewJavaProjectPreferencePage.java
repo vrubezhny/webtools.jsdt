@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -50,6 +51,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.wst.jsdt.core.IIncludePathEntry;
 import org.eclipse.wst.jsdt.core.JavaScriptConventions;
 import org.eclipse.wst.jsdt.core.JavaScriptCore;
+import org.eclipse.wst.jsdt.internal.core.JavaModelManager;
 import org.eclipse.wst.jsdt.internal.corext.util.Messages;
 import org.eclipse.wst.jsdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.wst.jsdt.internal.ui.JavaScriptPlugin;
@@ -215,6 +217,7 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 	
 	//private Text fBinFolderNameText;
 	private Text fSrcFolderNameText;
+	private Text fSrcExcudeText;
 
 	private Combo fJRECombo;
 
@@ -384,7 +387,20 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 //			fJRECombo.select(index);
 //			fJRECombo.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 //		}
-					
+		
+		Label exludeLabel = new Label(result, SWT.NONE);
+		exludeLabel.setText("Default exclusion patterns:");
+
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.widthHint = convertWidthInCharsToPixels(30);
+		 
+		fSrcExcudeText = new Text(result, SWT.SINGLE | SWT.BORDER);
+		String excludePatterns = JavaModelManager.getJavaModelManager().getOption(JavaScriptCore.CORE_DEFAULT_CLASSPATH_EXCLUSION_PATTERNS);
+		fSrcExcudeText.setText(excludePatterns);
+		fSrcExcudeText.setLayoutData(gd);
+ 
+		//fSrcExcudeText.addModifyListener(fModifyListener);
+		
 		validateFolders();
 	
 		Dialog.applyDialogFont(result);
@@ -469,6 +485,8 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 			fJRECombo.select(store.getDefaultInt(CLASSPATH_JRELIBRARY_INDEX));
 		}
 		
+		Hashtable defaultOptions = JavaModelManager.getJavaModelManager().getDefaultOptions();
+		this.fSrcExcudeText.setText(defaultOptions.get(JavaScriptCore.CORE_DEFAULT_CLASSPATH_EXCLUSION_PATTERNS).toString());
 		validateFolders();
 		super.performDefaults();
 	}
@@ -499,6 +517,10 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 		if (fJRECombo != null) {
 			store.setValue(CLASSPATH_JRELIBRARY_INDEX, fJRECombo.getSelectionIndex());
 		}
+		
+		Hashtable newOptions = new Hashtable();
+		newOptions.put(JavaScriptCore.CORE_DEFAULT_CLASSPATH_EXCLUSION_PATTERNS,this.fSrcExcudeText.getText());
+		JavaModelManager.getJavaModelManager().setOptions(newOptions); 
 		
 		JavaScriptPlugin.getDefault().savePluginPreferences();
 		return super.performOk();
