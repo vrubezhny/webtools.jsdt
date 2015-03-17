@@ -924,4 +924,29 @@ public class JavaScriptPlugin extends AbstractUIPlugin {
 		return fClasspathAttributeConfigurationDescriptors;
 	}
 	
+	/* 
+	 * Returns default inclusion patterns
+	 * 
+	 * return IPath[] array of IPath elements to exclude
+	 *
+	public IPath[] getDefaultClasspathExclusionPatterns() {
+		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
+		String defaultExclusions = store.getString(PreferenceConstants.SRCBIN_FOLDERS_EXCLUDE);
+		if (defaultExclusions == null || defaultExclusions.trim().length() == 0)
+			return ClasspathEntry.EXCLUDE_NONE;
+
+		Set<IPath> result = new HashSet<IPath>();
+		String[] exclusions = defaultExclusions.split(","); //$NON-NLS-1$
+		for (int i = 0; exclusions != null && i < exclusions.length; i++) {
+			exclusions[i] = exclusions[i] == null ? null : exclusions[i].trim();
+			Path exclusion = exclusions[i] == null || exclusions[i].length() == 0 ? 
+						null : new Path(exclusions[i]);
+			if (exclusion != null && !result.contains(exclusion))
+				result.add(exclusion);
+		}
+
+		return result.size() == 0 ? ClasspathEntry.EXCLUDE_NONE :
+					result.toArray(new IPath[result.size()]);
+	}
+	*/
 }
