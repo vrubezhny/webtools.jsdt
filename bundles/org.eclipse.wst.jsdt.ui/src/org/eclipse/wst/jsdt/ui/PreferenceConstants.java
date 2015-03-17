@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -392,6 +392,16 @@ public class PreferenceConstants {
 	 */
 	public static final String SRCBIN_SRCNAME= "org.eclipse.wst.jsdt.ui.wizards.srcBinFoldersSrcName"; //$NON-NLS-1$
 
+	/**
+	 * A named preference that specifies comma separated list of file name exclusion pattern form the source folder.
+	 * <p>
+	 * Value is of type <code>String</code>. 
+	 * </p>
+	 * 
+	 * @see #SRCBIN_FOLDERS_IN_NEWPROJ
+	 */
+	public static final String SRCBIN_FOLDERS_EXCLUDE= "org.eclipse.wst.jsdt.ui.wizards.srcBinFoldersExclude"; //$NON-NLS-1$
+	
 	/**
 	 * A named preference that specifies the output folder name used when creating a new JavaScript project. Value is inactive
 	 * if <code>SRCBIN_FOLDERS_IN_NEWPROJ</code> is set to <code>false</code>.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -29,6 +30,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -69,10 +71,10 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 	private static final String SRCBIN_FOLDERS_IN_NEWPROJ= PreferenceConstants.SRCBIN_FOLDERS_IN_NEWPROJ;
 	private static final String SRCBIN_SRCNAME= PreferenceConstants.SRCBIN_SRCNAME;
 	private static final String SRCBIN_BINNAME= PreferenceConstants.SRCBIN_BINNAME;
-
+	private static final String SRCBIN_FOLDERS_EXCLUDE= PreferenceConstants.SRCBIN_FOLDERS_EXCLUDE;
+	
 	private static final String CLASSPATH_JRELIBRARY_INDEX= PreferenceConstants.NEWPROJECT_JRELIBRARY_INDEX;
 	private static final String CLASSPATH_JRELIBRARY_LIST= PreferenceConstants.NEWPROJECT_JRELIBRARY_LIST;
-
 	
 	private static String fgDefaultEncoding= System.getProperty("file.encoding"); //$NON-NLS-1$
 
@@ -212,9 +214,11 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 	
 	private SelectionListener fSelectionListener;
 	private ModifyListener fModifyListener;
+	private ModifyListener fExclusionModifyListener;
 	
 	//private Text fBinFolderNameText;
 	private Text fSrcFolderNameText;
+	private Text fSrcExcludeText;
 
 	private Combo fJRECombo;
 
@@ -250,10 +254,24 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 			}
 		};
 		
+		fExclusionModifyListener = new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				String text = fSrcExcludeText.getText().trim();
+				if (verifyExclusionPatternList(text)) {
+					setErrorMessage(null);
+					setValid(true);
+				} else {
+					setErrorMessage(NLS.bind(PreferencesMessages.NewJavaProjectPreferencePage_exclgroup_patterns_validation_message, text));
+					setValid(false);
+				}
+			}
+		}; 
+		
 	}
 
 	public static void initDefaults(IPreferenceStore store) {
 		store.setDefault(SRCBIN_FOLDERS_IN_NEWPROJ, false);
+		store.setDefault(SRCBIN_FOLDERS_EXCLUDE, "**/*.min.js,**/node_modules/*,**/bower_components/*"); //$NON-NLS-1$
 		store.setDefault(SRCBIN_SRCNAME, "script"); //$NON-NLS-1$
 		store.setDefault(SRCBIN_BINNAME, ""); //$NON-NLS-1$
 		
@@ -334,12 +352,7 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 		initializeDialogUnits(parent);
 		
 		Composite result= new Composite(parent, SWT.NONE);
-		GridLayout layout= new GridLayout();
-		layout.marginHeight= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
-		layout.marginWidth= 0;
-		layout.verticalSpacing= convertVerticalDLUsToPixels(10);
-		layout.horizontalSpacing= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		layout.numColumns= 2;
+		GridLayout layout = createGridLayout();
 		result.setLayout(layout);
 		
 		GridData gd= new GridData(GridData.FILL_HORIZONTAL);
@@ -384,11 +397,42 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 //			fJRECombo.select(index);
 //			fJRECombo.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 //		}
-					
+		
+		Group excludePatternsGroup = new Group(result, SWT.NONE);
+		gd= new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan= 2;
+		layout= createGridLayout();
+		layout.marginWidth = 5;
+		excludePatternsGroup.setLayout(layout);
+		excludePatternsGroup.setLayoutData(gd);
+		
+		excludePatternsGroup.setText(PreferencesMessages.NewJavaProjectPreferencePage_exclgroup_title); 
+		
+		Label excludeDescrLabel= new Label(excludePatternsGroup, SWT.WRAP);
+		excludeDescrLabel.setText(PreferencesMessages.NewJavaProjectPreferencePage_exclgroup_description);
+		gd= new GridData(GridData.FILL_HORIZONTAL);
+		gd.widthHint= convertWidthInCharsToPixels(30);
+		gd.horizontalSpan = 2;
+		gd.horizontalIndent = convertWidthInCharsToPixels(1);
+		excludeDescrLabel.setLayoutData(gd);
+		Label excludeLabel= new Label(excludePatternsGroup, SWT.WRAP);
+		excludeLabel.setText(PreferencesMessages.NewJavaProjectPreferencePage_exclgroup_patterns_label);
+		fSrcExcludeText = addTextControl(excludePatternsGroup, excludeLabel, SRCBIN_FOLDERS_EXCLUDE, convertWidthInCharsToPixels(1));
+		fSrcExcludeText.addModifyListener(fExclusionModifyListener);
 		validateFolders();
 	
 		Dialog.applyDialogFont(result);
 		return result;
+	}
+
+	private GridLayout createGridLayout() {
+		GridLayout layout= new GridLayout();
+		layout.marginHeight= convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_MARGIN);
+		layout.marginWidth=0;
+		layout.verticalSpacing= convertVerticalDLUsToPixels(10);
+		layout.horizontalSpacing= convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		layout.numColumns= 2;
+		return layout;
 	}
 	
 	private void validateFolders() {
@@ -499,9 +543,37 @@ public class NewJavaProjectPreferencePage extends PreferencePage implements IWor
 		if (fJRECombo != null) {
 			store.setValue(CLASSPATH_JRELIBRARY_INDEX, fJRECombo.getSelectionIndex());
 		}
-		
+	
 		JavaScriptPlugin.getDefault().savePluginPreferences();
 		return super.performOk();
+	}
+	
+	public static boolean verifyExclusionPatternList(String patternList) {
+		final String text = patternList.trim();
+		boolean valid = false;
+		if(text.length() == 0) {
+			valid = true;
+		} else {
+			String[] names = text.split(","); //$NON-NLS-1$
+			if(names.length > 0 && !text.endsWith(",")) {
+				List patterns = new ArrayList(names.length);
+				for (int i = 0; i < names.length; i++) {
+					String name = names[i].trim();
+					if (name.length() > 0) {
+						Path path = new Path(name);
+						if (path.isAbsolute() || path.getDevice() != null || patterns.contains(name)) {
+							break;
+						} else {
+							patterns.add(name);
+						}
+					} else {
+						break;
+					}
+				}
+				valid = patterns.size() == names.length;
+			} 
+		}
+		return valid;		
 	}
 	
 //	private String[] getJRENames() {
