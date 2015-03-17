@@ -21,7 +21,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -49,6 +51,8 @@ import org.eclipse.wst.jsdt.core.IIncludePathEntry;
 import org.eclipse.wst.jsdt.core.IJavaScriptProject;
 import org.eclipse.wst.jsdt.core.JavaScriptCore;
 import org.eclipse.wst.jsdt.core.LibrarySuperType;
+import org.eclipse.wst.jsdt.internal.core.ClasspathEntry;
+import org.eclipse.wst.jsdt.internal.core.JavaModelManager;
 import org.eclipse.wst.jsdt.internal.core.JavaProject;
 import org.eclipse.wst.jsdt.internal.corext.util.Messages;
 import org.eclipse.wst.jsdt.internal.ui.dialogs.StatusInfo;
@@ -203,7 +207,9 @@ public class JavaProjectWizardSecondPage extends JavaCapabilityConfigurationPage
 	
 			if (fFirstPage.getDetect()) {
 				if (!fCurrProject.getFolder(JavaProject.SHARED_PROPERTIES_DIRECTORY).getFile(JavaProject.CLASSPATH_FILENAME).exists()) { 
-					final ClassPathDetector detector= new ClassPathDetector(fCurrProject, new SubProgressMonitor(monitor, 2));
+					final ClassPathDetector detector= 
+								new ClassPathDetector(fCurrProject, new SubProgressMonitor(monitor, 2),
+											getDefaultClasspathExclusionPatterns());
 					entries= detector.getClasspath();
 				} else {
 					monitor.worked(2);
@@ -232,7 +238,8 @@ public class JavaProjectWizardSecondPage extends JavaCapabilityConfigurationPage
 
 				// configure the classpath entries, including the default jre library.
 				List cpEntries= new ArrayList();
-				cpEntries.add(JavaScriptCore.newSourceEntry(projectPath.append(srcPath)));
+				cpEntries.add(JavaScriptCore.newSourceEntry(projectPath.append(srcPath), 
+							getDefaultClasspathExclusionPatterns()));
 				cpEntries.addAll(Arrays.asList(getDefaultClasspathEntry()));
 				entries= (IIncludePathEntry[]) cpEntries.toArray(new IIncludePathEntry[cpEntries.size()]);
 				
@@ -241,7 +248,8 @@ public class JavaProjectWizardSecondPage extends JavaCapabilityConfigurationPage
 			} else {
 				IPath projectPath= fCurrProject.getFullPath();
 				List cpEntries= new ArrayList();
-				cpEntries.add(JavaScriptCore.newSourceEntry(projectPath));
+				cpEntries.add(JavaScriptCore.newSourceEntry(projectPath, 
+							getDefaultClasspathExclusionPatterns()));
 				cpEntries.addAll(Arrays.asList(getDefaultClasspathEntry()));
 				entries= (IIncludePathEntry[]) cpEntries.toArray(new IIncludePathEntry[cpEntries.size()]);
 
@@ -286,6 +294,31 @@ public class JavaProjectWizardSecondPage extends JavaCapabilityConfigurationPage
 			return new IIncludePathEntry[] { JavaScriptCore.newContainerEntry(jreContainerPath)};
 		}
 	}
+
+	/* 
+	 * Returns default inclusion patterns
+	 * 
+	 * return IPath[] array of IPath elements to exclude
+	 */
+	private IPath[] getDefaultClasspathExclusionPatterns() {
+		String defaultExclusions = JavaModelManager.getJavaModelManager().getOption(JavaScriptCore.CORE_DEFAULT_CLASSPATH_EXCLUSION_PATTERNS);
+		if (defaultExclusions == null || defaultExclusions.trim().length() == 0)
+			return ClasspathEntry.EXCLUDE_NONE;
+
+		Set<IPath> result = new HashSet<IPath>();
+		String[] exclusions = defaultExclusions.split(","); //$NON-NLS-1$
+		for (int i = 0; exclusions != null && i < exclusions.length; i++) {
+			exclusions[i] = exclusions[i] == null ? null : exclusions[i].trim();
+			Path exclusion = exclusions[i] == null || exclusions[i].length() == 0 ? 
+						null : new Path(exclusions[i]);
+			if (exclusion != null && !result.contains(exclusion))
+				result.add(exclusion);
+		}
+
+		return result.size() == 0 ? ClasspathEntry.EXCLUDE_NONE :
+					result.toArray(new IPath[result.size()]);
+	}
+	
 	
 	private void deleteProjectFile(URI projectLocation) throws CoreException {
 		IFileStore file= EFS.getStore(projectLocation);
