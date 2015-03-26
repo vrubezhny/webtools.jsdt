@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -575,6 +575,11 @@ class DefaultBindingResolver extends BindingResolver {
 				case ASTNode.FUNCTION_INVOCATION :
 				case ASTNode.SUPER_METHOD_INVOCATION :
 				case ASTNode.CONDITIONAL_EXPRESSION :
+					org.eclipse.wst.jsdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.wst.jsdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(expression);
+					if (compilerExpression != null) {
+						return this.getTypeBinding(compilerExpression.resolvedType);
+					}
+					break;
 				case ASTNode.STRING_LITERAL :
 					if (this.scope != null) {
 						return this.getTypeBinding(this.scope.getJavaLangString());
