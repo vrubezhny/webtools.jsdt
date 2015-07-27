@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -352,6 +352,9 @@ public class HandleFactory {
 				IJavaScriptProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
+					if (!(roots[j] instanceof PackageFragmentRoot)) {
+						continue;
+					}
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
 					if ( root.getPath().isPrefixOf(path)			&& !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false))
 					{
