@@ -236,6 +236,7 @@ public class EsprimaParser {
 		String description = (String) error.getMember("description");
 		Number index = (Number) error.getMember("index");
 		Number line = (Number) error.getMember("lineNumber");
+		Number column = (Number) error.getMember("column");
 
 		char[] fileName = null;
 		if(unit != null){
@@ -248,10 +249,10 @@ public class EsprimaParser {
 					0,
 					null,
 					ProblemSeverities.Error,
-					0,
-					0,
+					index.intValue(),
+					-1,
 					line.intValue(),
-					index.intValue());
+					column.intValue());
 		return result;
 	}
 
