@@ -198,7 +198,7 @@ public class ASTIndexerVisitor extends ASTVisitor {
 		String name;
 		if (node.getName() != null) {
 			name = node.getName().getIdentifier();
-		} else if (node.getExpression().getNodeType() == ASTNode.FIELD_ACCESS) {
+		} else if (node.getExpression() != null && node.getExpression().getNodeType() == ASTNode.FIELD_ACCESS) {
 			name = ((FieldAccess) node.getExpression()).getName().getIdentifier();
 		} else {
 			// Can't index an anonymous function.

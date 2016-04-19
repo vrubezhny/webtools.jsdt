@@ -312,7 +312,7 @@ public class ASTMatchingVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(FunctionDeclaration node) {
-
+		System.out.println(node.getName() == null ? "anonymous" : node.getName().toString() + ": " +node.getStartPosition() + ", " + node.getLength());
 		Expression name = node.getMethodName();
 		char[] nodeName, contextName, patternName;
 		if (name != null) {

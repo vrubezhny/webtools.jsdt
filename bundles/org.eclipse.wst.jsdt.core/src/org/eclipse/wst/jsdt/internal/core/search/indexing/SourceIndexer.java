@@ -75,6 +75,7 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 			start = System.currentTimeMillis();
 		}
 		ASTIndexerVisitor visitor = new ASTIndexerVisitor(this);
+		ASTViewGenerator viewer = new ASTViewGenerator();
 
 		// Create ASTParser
 		char[] source = document.getCharContents();
@@ -92,6 +93,7 @@ public class SourceIndexer extends AbstractIndexer implements SuffixConstants {
 		try {
 			ASTNode root = parser.createAST(null);
 			root.accept(visitor);
+	 		root.accept(viewer);
 		} catch (ClassCastException e) {
 			Util.verbose("ClassCastException during indexing -- " + e.getMessage() //$NON-NLS-1$
 						+ "\n\t in file:  " + this.document.getPath()); //$NON-NLS-1$
