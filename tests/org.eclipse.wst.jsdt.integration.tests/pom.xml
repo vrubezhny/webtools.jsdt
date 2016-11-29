@@ -27,7 +27,7 @@
 
 	<properties>
 		<suiteClass>org.eclipse.wst.jsdt.integration.tests.JSDTIntegrationTests</suiteClass>
-		<skipIntegrationTests>true</skipIntegrationTests>
+		<skipIntegrationTests>false</skipIntegrationTests>
 		<skipTests>${skipIntegrationTests}</skipTests>
 	</properties>
 
@@ -42,7 +42,7 @@
 					<testSuite>org.eclipse.wst.jsdt.integration.tests</testSuite>
 					<testClass>${suiteClass}</testClass>
 					<argLine>${platformSystemProperties}</argLine>
-					<dependencies>
+					<!-- dependencies>
 						<dependency>
 							<type>p2-installable-unit</type>
 							<artifactId>org.eclipse.wst.jsdt.feature.feature.group</artifactId>
@@ -52,12 +52,13 @@
 							<artifactId>org.eclipse.equinox.event</artifactId>
 							<version>0.0.0</version>
 						</dependency>
-					</dependencies>
+					</dependencies -->
 					<systemProperties>
 						<org.osgi.framework.bundle.parent>ext</org.osgi.framework.bundle.parent>
 					</systemProperties>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
@@ -74,13 +75,6 @@
 				<platformSystemProperties> -XstartOnFirstThread </platformSystemProperties>
 			</properties>
 		</profile>
-	</profiles>
 
-	<repositories>
-		<repository>
-			<id>reddeer-site</id>
-			<url>http://download.jboss.org/jbosstools/neon/stable/updates/reddeer/1.2.1/</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
+	</profiles>
 </project>

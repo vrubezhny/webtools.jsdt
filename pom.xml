@@ -71,6 +71,32 @@
               </execution>
             </executions>
           </plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<configuration>
+					<useUIHarness>true</useUIHarness>
+					<useUIThread>false</useUIThread>
+					<testSuite>org.eclipse.wst.jsdt.integration.tests</testSuite>
+					<testClass>${suiteClass}</testClass>
+					<argLine>${platformSystemProperties}</argLine>
+					<dependencies>
+						<dependency>
+							<type>p2-installable-unit</type>
+							<artifactId>org.eclipse.wst.jsdt.feature.feature.group</artifactId>
+						</dependency>
+						<dependency>
+							<type>p2-installable-unit</type>
+							<artifactId>org.eclipse.equinox.event</artifactId>
+							<version>0.0.0</version>
+						</dependency>
+					</dependencies>
+					<systemProperties>
+						<org.osgi.framework.bundle.parent>ext</org.osgi.framework.bundle.parent>
+					</systemProperties>
+				</configuration>
+			</plugin>
+
         </plugins>
       </build>
     </profile>
@@ -87,6 +113,11 @@
       <id>Webtools Repository - Snapshots</id>
       <name>Webtools Repository - Snapshots</name>
       <url>https://repo.eclipse.org/content/repositories/webtools-snapshots/</url>
+    </repository>
+    <repository>
+      <id>reddeer-site</id>
+      <url>http://download.jboss.org/jbosstools/neon/stable/updates/reddeer/1.2.1/</url>
+      <layout>p2</layout>
     </repository>
   </repositories>
 </project>
