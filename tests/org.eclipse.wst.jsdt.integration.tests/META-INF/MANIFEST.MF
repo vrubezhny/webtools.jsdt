@@ -21,6 +21,18 @@ Require-Bundle: org.junit,
  org.eclipse.jdt.debug;bundle-version="3.10.0",
  org.eclipse.core.resources;bundle-version="3.10.0",
  org.eclipse.wst.jsdt.debug.core;bundle-version="3.1.300",
- org.eclipse.debug.core;bundle-version="3.10.100"
+ org.eclipse.debug.core;bundle-version="3.10.100",
+ org.eclipse.ui,
+ org.eclipse.wst.jsdt.ui,
+ org.eclipse.wst.jsdt.debug.ui,
+ org.eclipse.wst.jsdt.debug.rhino.ui,
+ org.eclipse.wst.jsdt.chromium.debug.ui,
+ org.eclipse.wst.jsdt.js.npm,
+ org.eclipse.wst.jsdt.js.node,
+ org.eclipse.wst.jsdt.js.bower,
+ org.eclipse.wst.jsdt.js.cli,
+ org.eclipse.wst.jsdt.js.grunt,
+ org.eclipse.wst.jsdt.js.gulp,
+ org.eclipse.wst.jsdt.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
